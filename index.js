@@ -18,7 +18,7 @@ AirbrakePlugin.prototype.apply = function(compiler) {
     /*
      * Get options values
      */
-    const { projectId, projectKey, host, logging, removeAfterUpload } = this.options;
+    const { projectId, projectKey, host, logging, removeAfterUpload, patternForFile } = this.options;
 
     /*
      * Upload file to sourcemaps
@@ -32,6 +32,9 @@ AirbrakePlugin.prototype.apply = function(compiler) {
             }
 
             const airbrakeUrl = `https://airbrake.io/api/v4/projects/${projectId}/sourcemaps`;
+            const pattern = patternForFile && typeof patternForFile === 'function'
+              ? patternForFile(path, file)
+              : undefined
 
             const postData = {
                 headers: {
@@ -41,6 +44,7 @@ AirbrakePlugin.prototype.apply = function(compiler) {
                 formData: {
                     file: fs.createReadStream(filePath),
                     name: `${host}/${file}`,
+                    pattern,
                     buffer: new Buffer([1, 2, 3])
                 },
             };
